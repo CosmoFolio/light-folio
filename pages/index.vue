@@ -94,8 +94,8 @@
             >
             <v-card-title>My reward
             <v-spacer></v-spacer>
-
-            <div v-if="logged && delegationsLoaded && delegations.length > 0 && !isNaN(delegations[0].reward)">{{ (delegations[0].reward / 1000000).toFixed(2) }} CRBRUS</div>
+ 
+            <div v-if="logged && delegationsLoaded && delegations.length > 0 && !isNaN(rewards.amount)">{{ (rewards.amount / 1000000).toFixed(2) }} CRBRUS</div>
             <div v-else>0 CRBRUS</div>
             </v-card-title>
 
@@ -322,7 +322,7 @@ import {
     }),
     computed: {
       ...mapState('keplr', [`accounts`, `initialized`, `error`, `logged`, `logout`]),
-      ...mapState('data', [`balances`, 'validators', 'delegations', 'delegationsLoaded', 'validatorsLoaded']),
+      ...mapState('data', [`balances`, 'validators', 'delegations', 'delegationsLoaded', 'validatorsLoaded', 'rewards']),
     },
     async mounted() {
       await this.$store.dispatch('data/getAllValidators')

@@ -78,7 +78,7 @@ export default {
   },
   server: {
     port: 8085, // default: 3000
-    host: 'cosmos-tool.com', // default: localhost,
+    // host: 'cosmos-tool.com', // default: localhost,
   },
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
