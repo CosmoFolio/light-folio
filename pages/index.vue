@@ -258,7 +258,6 @@
                     <td>
 
                   <template >
-                  {{ balances }}
                   <DelegateModal
                     v-if="logged"
                     :chainIdProps="cosmosConfig[0].coinLookup.addressPrefix"
@@ -291,7 +290,7 @@
         class="white py-4 text-center black--text"
         cols="12"
       >
-        <strong>Cerberus.zone</strong> — {{ new Date().getFullYear() }}
+        cerberus.zone — {{ new Date().getFullYear() }} - v1.1.0
       </v-col>
     </v-row>
   </v-footer>
