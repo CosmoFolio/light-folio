@@ -94,10 +94,10 @@
 
             <div v-if="logged">
               
-              {{ (balances / 1000000).toFixed(2) }} CRBRUS
+              {{ (balances / 1000000).toFixed(2) }} {{ cosmosConfig[0].coinLookup.viewDenom }}
               
             </div>
-            <div v-else>0 CRBRUS</div>
+            <div v-else>0 {{ cosmosConfig[0].coinLookup.viewDenom }}</div>
             </v-card-title>
 
             </v-card>
@@ -114,8 +114,8 @@
             <v-card-title>My reward
             <v-spacer></v-spacer>
  
-            <div v-if="logged && delegationsLoaded && delegations.length > 0 && !isNaN(rewards.amount)">{{ (rewards.amount / 1000000).toFixed(2) }} CRBRUS</div>
-            <div v-else>0 CRBRUS</div>
+            <div v-if="logged && delegationsLoaded && delegations.length > 0 && !isNaN(rewards.amount)">{{ (rewards.amount / 1000000).toFixed(2) }} {{ cosmosConfig[0].coinLookup.viewDenom }}</div>
+            <div v-else>0 {{ cosmosConfig[0].coinLookup.viewDenom }}</div>
             </v-card-title>
 
 
@@ -200,8 +200,8 @@
                         >
                           <v-icon>mdi-download</v-icon>
                         </v-btn>
-                        {{ (item.reward / 1000000).toFixed(2) }} CRBRUS</div>
-                        <div v-else>0 CRBRUS</div>
+                        {{ (item.reward / 1000000).toFixed(2) }} {{ cosmosConfig[0].coinLookup.viewDenom }} </div>
+                        <div v-else>0 {{ cosmosConfig[0].coinLookup.viewDenom }}</div>
                         </td>
                       <td>
                         <RedelegateModal
@@ -349,7 +349,7 @@
                               {{ item.validator_src_address }} <v-icon>mdi-ray-start-arrow</v-icon> {{ item.validator_dst_address }}
                               </td>
                               <td>
-                                {{ item.amount }} CRBRUS                                
+                                {{ item.amount }} {{ cosmosConfig[0].coinLookup.viewDenom }}                                
                               </td>
                               <td>
                                 {{ item.completion_time }}                                
@@ -404,7 +404,7 @@
                               {{ item.validator_src_address }}
                               </td>
                               <td>
-                                {{ item.amount }} CRBRUS                                
+                                {{ item.amount }} {{ cosmosConfig[0].coinLookup.viewDenom }}                                
                               </td>
                               <td>
                                 {{ item.completion_time }}                                
