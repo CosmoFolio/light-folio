@@ -1,7 +1,7 @@
 
 module.exports = {
   async connectKeplrSuggest(dataChain) {
-    console.log(dataChain)
+    //console.log(dataChain)
     if (!window.getOfflineSigner || !window.keplr) {
         alert("Please install keplr extension");
     } else {

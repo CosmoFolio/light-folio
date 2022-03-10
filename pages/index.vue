@@ -13,7 +13,7 @@
           size="32"
         >
           <img
-            src="https://cerberus-chain.s3.us-east-2.amazonaws.com/transparent_logo_no_text.png"
+            :src="cosmosConfig[0].coinLookup.icon"
             alt="cerberus"
           >
         </v-avatar>
@@ -28,6 +28,17 @@
         </v-btn>
 
         <v-spacer></v-spacer>
+    <v-progress-circular
+      v-if="logged"
+      :rotate="360"
+      :size="20"
+      :width="5"
+      :value="timerValue"
+      color="amber"
+      class="mr-4"
+    >
+ 
+    </v-progress-circular>        
           <v-btn v-if="!logged" elevation="4" depressed v-on:click="connectKeplr">
           <img
             class="mr-2"
@@ -72,11 +83,19 @@
               outlined
               rounded="lg"
             >
-            <v-card-title>My wallet
+            <v-card-title>My wallet 
+                <SendModal 
+                  v-if="logged"
+                  :chainIdProps="cosmosConfig[0].coinLookup.addressPrefix"
+                  :amountAvailable="(balances / 1000000)"
+                  :coinIcon="cosmosConfig[0].coinLookup.icon"
+                />            
             <v-spacer></v-spacer>
 
             <div v-if="logged">
+              
               {{ (balances / 1000000).toFixed(2) }} CRBRUS
+              
             </div>
             <div v-else>0 CRBRUS</div>
             </v-card-title>
@@ -112,7 +131,7 @@
               rounded="lg"
             >
             <v-card-title>Chain info
-            <v-spacer></v-spacer>No data
+            <v-spacer></v-spacer>Height: {{ lastBlock }}
             </v-card-title>
 
 
@@ -131,7 +150,7 @@
               rounded="lg"
             >
             <v-card-title>My delegations</v-card-title>
-
+            <v-card-text>
               <v-simple-table>
                 <template v-slot:default>
                   <thead>
@@ -155,7 +174,7 @@
                     <tr
                       v-if="logged && delegationsLoaded"
                       v-for="item in delegations"
-                      :key="item.name"
+                      :key="item.op_address"
                     >
                       <td>
                       <v-avatar
@@ -206,20 +225,242 @@
                   </tbody>
                 </template>
               </v-simple-table>
+            </v-card-text>
             </v-card>
-          </v-col>
-
-          <v-col
+          </v-col>           
+<!--          <v-col
             cols="12"
-            md="6"
-          >
+            md="3"
+          > 
             <v-card
               class="pa-2"
               outlined
               rounded="lg"
+            >          
+            <v-card-title>Redelegations</v-card-title>
+              <v-simple-table>
+                <template v-slot:default>
+                  <thead>
+                    <tr v-if="logged && delegationsLoaded">
+                      <th class="text-left">
+                        Name
+                      </th>
+                      <th class="text-left">
+                        Reward
+                      </th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    <tr
+                      v-if="logged"
+                      v-for="item in reDelegations"
+                      :key="item.validator_dst_address"
+                    >
+                     
+                      <td>
+                      <v-avatar
+
+                        class="mr-3"
+                        color="grey darken-1"
+                        size="32"
+                      >
+                        <img
+                          :src="cosmosConfig[0].coinLookup.icon"
+                          alt="cerberus"
+                        >
+                      </v-avatar>
+                      {{ item.validator_src_address }}
+                      </td>
+                      <td>
+                        {{ item.entries[0].redelegation_entry.initial_balance }}
+                        
+                        </td>
+ 
+                    </tr>
+                  </tbody>
+                </template>
+              </v-simple-table>
+            </v-card>
+          </v-col>-->
+          <v-col
+            cols="12"
+            md="6"
+          > 
+            <v-card
+              class="pa-2"
+              outlined
+              rounded="lg"
+            >          
+            <v-card-title>Others</v-card-title>
+            <v-card-text>
+              <v-tabs v-model="tab" v-if="logged">
+                <v-tab href="#tab-1">
+                  Redelegations
+                </v-tab>
+
+                <v-tab href="#tab-2">
+                  Undelegations
+                </v-tab>
+
+              </v-tabs>
+              </v-tabs>
+              <v-tabs-items v-model="tab" v-if="logged && delegationsLoaded">
+                <v-tab-item
+                  value="tab-1"
+                >
+                  <v-card flat>
+                    <v-card-text>
+                      <v-simple-table>
+                        <template v-slot:default>
+                          <thead>
+                            <tr>
+                              <th class="text-left">
+                                Name
+                              </th>
+                              <th class="text-left">
+                                Amount
+                              </th>
+                              <th class="text-left">
+                                Completion time
+                              </th>
+                            </tr>
+                          </thead>
+
+                          <tbody>
+                            <tr
+                              v-if="logged"
+                              v-for="item in reDelegations"
+                              :key="item.amount"
+                            >
+                            
+                              <td>
+                              <v-avatar
+
+                                class="mr-3"
+                                color="grey darken-1"
+                                size="32"
+                              >
+                                <img
+                                  :src="cosmosConfig[0].coinLookup.icon"
+                                  alt="cerberus"
+                                >
+                              </v-avatar>
+                              {{ item.validator_src_address }} <v-icon>mdi-ray-start-arrow</v-icon> {{ item.validator_dst_address }}
+                              </td>
+                              <td>
+                                {{ item.amount }} CRBRUS                                
+                              </td>
+                              <td>
+                                {{ item.completion_time }}                                
+                              </td>        
+                            </tr>
+                          </tbody>
+                        </template>
+                      </v-simple-table>                    
+                    </v-card-text>
+                  </v-card>
+                </v-tab-item>
+                <v-tab-item
+                  value="tab-2"
+                >
+                  <v-card flat>
+                    <v-card-text>
+                      <v-simple-table>
+                        <template v-slot:default>
+                          <thead>
+                            <tr v-if="logged && delegationsLoaded">
+                              <th class="text-left">
+                                Name
+                              </th>
+                              <th class="text-left">
+                                Amount
+                              </th>
+                              <th class="text-left">
+                                Completion time
+                              </th>
+                            </tr>
+                          </thead>
+
+                          <tbody>
+                            <tr
+                              v-if="logged"
+                              v-for="item in unbondings"
+                              :key="item.validator_src_address"
+                            >
+                            
+                              <td>
+                              <v-avatar
+
+                                class="mr-3"
+                                color="grey darken-1"
+                                size="32"
+                              >
+                                <img
+                                  :src="cosmosConfig[0].coinLookup.icon"
+                                  alt="cerberus"
+                                >
+                              </v-avatar>
+                              {{ item.validator_src_address }}
+                              </td>
+                              <td>
+                                {{ item.amount }} CRBRUS                                
+                              </td>
+                              <td>
+                                {{ item.completion_time }}                                
+                              </td>        
+                            </tr>
+                          </tbody>
+                        </template>
+                      </v-simple-table>                      
+                    </v-card-text>
+                  </v-card>
+                </v-tab-item>
+              </v-tabs-items>
+    
+            </v-card-text>
+            </v-card>
+          </v-col>
+       </v-row>
+        <!-- Here -->
+        <v-row>
+          <v-col
+            cols="12"
+            md="12"
+          >
+ 
+            <v-data-table
+              :headers="headers"
+              :items="validators"
+              :items-per-page="5"
+              class="elevation-1"
             >
-            <v-card-title>All validators</v-card-title>
-            <v-simple-table>
+              <template #item.name="{ item }">
+                    <v-avatar
+
+                      class="mr-3"
+                      color="grey darken-1"
+                      size="32"
+                    >
+                      <img
+                        :src="cosmosConfig[0].coinLookup.icon"
+                        alt="cerberus"
+                      >
+                    </v-avatar>              
+                  {{ item.name }}
+              </template>            
+              <template #item.delegate="{ item }">
+                  <DelegateModal
+                    v-if="logged"
+                    :chainIdProps="cosmosConfig[0].coinLookup.addressPrefix"
+                    :addressTo="item.op_address"
+                    :validatorName="item.name"
+                    :balances="balances"
+                  />
+              </template>  
+            </v-data-table>
+  
+           <!-- <v-simple-table>
               <template v-slot:default>
                 <thead>
                   <tr>
@@ -271,8 +512,8 @@
                   </tr>
                 </tbody>
               </template>
-            </v-simple-table>
-            </v-card>
+            </v-simple-table>-->
+ 
           </v-col>
         </v-row>
       </v-container>
@@ -307,6 +548,13 @@ import {
 
   export default {
     data: () => ({
+      tab: null,
+        headers: [
+          { text: 'Name', value: 'name' },
+          { text: 'Commission', value: 'crate' },
+          { text: 'Operator address', value: 'op_address' },
+          { text: 'Delegate', value: 'delegate' },
+        ],      
       links: [
         {
           name: 'Dashboard',
@@ -319,12 +567,28 @@ import {
       ],
       cosmosConfig: cosmosConfig,
       loadingRefresh: false,
+      interval: {},
+      timerValue: 0,
     }),
     computed: {
       ...mapState('keplr', [`accounts`, `initialized`, `error`, `logged`, `logout`]),
-      ...mapState('data', [`balances`, 'validators', 'delegations', 'delegationsLoaded', 'validatorsLoaded', 'rewards']),
+      ...mapState('data', [`balances`, 'validators', 'delegations', 'delegationsLoaded', 'validatorsLoaded', 'rewards', 'reDelegations', 'unbondings', 'lastBlock']),
     },
     async mounted() {
+      this.interval = setInterval(async () => {
+        if (this.timerValue === 100) {
+          await this.$store.dispatch('data/getLastBlock')
+          // console.log(this.logged)
+          if (this.logged === true)
+            this.$store.dispatch('data/refresh', this.accounts[0].address)        
+          return (this.timerValue = 0)
+        }
+        this.timerValue += 10
+      }, 1000)
+      
+      await this.$store.dispatch('data/getLastBlock')
+ 
+      
       await this.$store.dispatch('data/getAllValidators')
       window.addEventListener("keplr_keystorechange", async () => {
         await this.$store.dispatch('keplr/connectWallet', cosmosConfig[0])
@@ -338,20 +602,21 @@ import {
         await this.$store.dispatch('data/getWalletInfo', this.accounts[0].address)
         await this.$store.dispatch('data/getDelegations', this.accounts[0].address)
         await this.$store.dispatch('data/getAllProposals')
+        await this.$store.dispatch('data/getReDelegations', this.accounts[0].address)
+        await this.$store.dispatch('data/getUnbondings', this.accounts[0].address)
+        await this.$store.dispatch('data/getLastBlock')
         //await this.$store.dispatch('data/refresh', this.accounts[0].address)
 
         // this.address = this.accounts
         // this.$router.push({path: "/"})
       },
-      delegateCoin: async function (event) {
-        console.log('delegate')
-      },
+ 
       async refresh() {
         this.loadingRefresh = true
         await this.$store.dispatch('data/refresh', this.accounts[0].address)
         // await this.$store.dispatch('test/refresh')
         this.loadingRefresh = false
-        console.log(this.accounts)
+        // console.log(this.accounts)
       },
       getReward(addrValidator) {
         (async () => {
@@ -391,3 +656,8 @@ import {
     },
   }
 </script>
+<style scoped>
+.v-progress-circular {
+  margin: 1rem;
+}
+</style>
